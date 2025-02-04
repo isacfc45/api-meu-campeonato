@@ -24,7 +24,7 @@ class CampeonatoTest extends TestCase
                 'message' => 'Campeonato simulado com sucesso!'
             ]);
 
-        $this->assertDatabaseCount('partidas', 8); // 4 quartas + 2 semis + 1 final
+        $this->assertDatabaseCount('partidas', 8);
     }
 
     public function test_nao_permitir_simulacao_com_menos_de_8_times()
