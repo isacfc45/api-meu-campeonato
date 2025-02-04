@@ -30,4 +30,14 @@ class CampeonatoRepository
     {
         return Time::all();
     }
+
+    public function getAllCampeonatos()
+    {
+        return Campeonato::with('partidas')->orderBy('data_inicio', 'desc')->get();
+    }
+
+    public function getCampeonatoById($id)
+    {
+        return Campeonato::with('partidas')->find($id);
+    }
 }

@@ -24,4 +24,21 @@ class CampeonatoController extends Controller
             return ApiResponse::error($e->getMessage(), 400);
         }
     }
+
+    public function index()
+    {
+        $campeonatos = $this->service->getAllCampeonatos();
+        return ApiResponse::success($campeonatos, 'Lista de campeonatos recuperada com sucesso.');
+    }
+
+    public function show($id)
+    {
+        $campeonato = $this->service->getCampeonatoById($id);
+
+        if (!$campeonato) {
+            return ApiResponse::error('Campeonato não encontrado', 404);
+        }
+
+        return ApiResponse::success($campeonato, 'Detalhes do campeonato recuperados com sucesso.');
+    }
 }

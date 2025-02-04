@@ -9,7 +9,7 @@ class Time extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['none', 'data_inscricao', 'pontos'];
+    protected $fillable = ['nome', 'data_inscricao', 'pontos'];
 
     protected $casts = [
         'data_inscricao' => 'datetime',

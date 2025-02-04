@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\CampeonatoRepository;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class CampeonatoService
 {
@@ -11,52 +12,72 @@ class CampeonatoService
 
     public function simularCampeonato($nome)
     {
-        $times = $this->repository->getTimes();
+        try {
+            DB::beginTransaction();
 
-        if ($times->count() !== 8) {
-            throw new Exception('É necessário exatamente 8 times para iniciar o campeonato.');
-        }
+            $times = $this->repository->getTimes();
 
-        $campeonato = $this->repository->createCampeonato($nome);
-        $fases = ['quartas', 'semifinal', 'final', '3º_lugar'];
-        $classificados = $times->shuffle()->values();
-
-        foreach ($fases as $fase) {
-            $proximosClassificados = collect();
-
-            for ($i = 0; $i < $classificados->count(); $i += 2) {
-                $timeA = $classificados[$i];
-                $timeB = $classificados[$i + 1];
-
-                [$golsA, $golsB] = $this->executarScriptPython();
-                $vencedor = $this->determinarVencedor($timeA, $timeB, $golsA, $golsB);
-
-                $this->repository->criarPartida(
-                    $campeonato->id,
-                    $timeA->id,
-                    $timeB->id,
-                    $fase,
-                    $golsA,
-                    $golsB,
-                    $vencedor->id
-                );
-
-                if ($fase !== '3º_lugar') {
-                    $proximosClassificados->push($vencedor);
-                }
+            if ($times->count() !== 8) {
+                throw new \Exception('É necessário exatamente 8 times para iniciar o campeonato.');
             }
 
-            $classificados = $proximosClassificados;
+            $campeonato = $this->repository->createCampeonato($nome);
+            $classificados = $times->shuffle()->values();
+
+            $semifinalistas = $this->simularFase($campeonato->id, $classificados, 'quartas');
+
+            $finalistas = $this->simularFase($campeonato->id, $semifinalistas, 'semifinal');
+
+            $perdedoresSemifinal = $semifinalistas->diff($finalistas)->values();
+            $this->simularFase($campeonato->id, $perdedoresSemifinal, '3º_lugar');
+
+            $this->simularFase($campeonato->id, $finalistas, 'final');
+
+            $campeonato->update(['data_fim' => now()]);
+
+            DB::commit();
+
+            return $campeonato->load('partidas');
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    private function simularFase($campeonatoId, $times, $fase)
+    {
+        $classificados = collect();
+
+        for ($i = 0; $i < $times->count(); $i += 2) {
+            $timeA = $times[$i];
+            $timeB = $times[$i + 1];
+
+            [$golsA, $golsB] = $this->executarScriptPython();
+            $vencedor = $this->determinarVencedor($timeA, $timeB, $golsA, $golsB);
+
+            $this->repository->criarPartida(
+                $campeonatoId,
+                $timeA->id,
+                $timeB->id,
+                $fase,
+                $golsA,
+                $golsB,
+                $vencedor->id
+            );
+
+            if (in_array($fase, ['quartas', 'semifinal'])) {
+                $classificados->push($vencedor);
+            }
         }
 
-        $campeonato->update(['data_fim' => now()]);
-        return $campeonato->load('partidas');
+        return $classificados;
     }
+
 
     private function executarScriptPython(): array
     {
         $output = [];
-        exec('python3 app/Scripts/teste.py', $output);
+        exec('python3 ' . base_path('app/Scripts/teste.py'), $output);
         return [(int)$output[0], (int)$output[1]];
     }
 
@@ -73,5 +94,15 @@ class CampeonatoService
         }
 
         return $timeA->data_inscricao < $timeB->data_inscricao ? $timeA : $timeB;
+    }
+
+    public function getAllCampeonatos()
+    {
+        return $this->repository->getAllCampeonatos();
+    }
+
+    public function getCampeonatoById($id)
+    {
+        return $this->repository->getCampeonatoById($id);
     }
 }
