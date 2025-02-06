@@ -15,7 +15,7 @@ API desenvolvida em Laravel para simulação de campeonatos de futebol, onde os 
 ### 1️⃣ Clone o repositório
 
 ```bash
-git clone SEU_REPOSITORIO.git
+git clone https://github.com/isacfc45/api-meu-campeonato/
 cd meu-campeonato
 ```
 
