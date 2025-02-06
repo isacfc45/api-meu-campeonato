@@ -28,7 +28,7 @@ class CampeonatoRepository
 
     public function getTimes()
     {
-        return Time::all();
+        return Time::all()->random(8);
     }
 
     public function getAllCampeonatos()
