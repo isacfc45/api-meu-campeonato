@@ -1,0 +1,114 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Meu Campeonato API",
+        "description": "API para simulação de campeonatos de futebol",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000/api",
+            "description": "Servidor Local"
+        }
+    ],
+    "paths": {
+        "/api/campeonatos/{id}": {
+            "get": {
+                "tags": [
+                    "Campeonatos"
+                ],
+                "summary": "Buscar detalhes de um campeonato",
+                "operationId": "67ef9bdb42f0aa3bc3e8676f67f94ff0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalhes do campeonato",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "nome": {
+                                            "type": "string",
+                                            "example": "Campeonato de Verão"
+                                        },
+                                        "data_inicio": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2024-02-01T00:00:00Z"
+                                        },
+                                        "data_fim": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2024-02-05T00:00:00Z"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/times/{id}": {
+            "delete": {
+                "tags": [
+                    "Times"
+                ],
+                "summary": "Deletar um time",
+                "operationId": "561f69179f95cdb871585e98f5eac41b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Time deletado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Time deletado com sucesso"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Campeonatos",
+            "description": "Campeonatos"
+        },
+        {
+            "name": "Times",
+            "description": "Times"
+        }
+    ]
+}
