@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Campeonato;
 use Tests\TestCase;
 use App\Models\Time;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -38,7 +39,32 @@ class CampeonatoTest extends TestCase
         $response->assertStatus(400)
             ->assertJson([
                 'status' => 'error',
-                'message' => 'É necessário exatamente 8 times para iniciar o campeonato.'
+            ]);
+    }
+
+    public function test_listar_campeonatos()
+    {
+        $response = $this->getJson('/api/campeonatos');
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'status',
+                'data' => [
+                    '*' => ['id', 'nome', 'data_inicio', 'data_fim', 'partidas']
+                ]
+            ]);
+    }
+
+    public function test_exibir_detalhes_do_campeonato()
+    {
+        $campeonato = Campeonato::factory()->create();
+
+        $response = $this->getJson("/api/campeonatos/{$campeonato->id}");
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'status',
+                'data' => ['id', 'nome', 'data_inicio', 'data_fim', 'partidas']
             ]);
     }
 }

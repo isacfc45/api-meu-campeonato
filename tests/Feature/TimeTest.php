@@ -49,4 +49,56 @@ class TimeTest extends TestCase
         $response->assertStatus(422)
             ->assertJsonValidationErrors('nome');
     }
+
+    public function test_atualizar_time()
+    {
+        $time = Time::factory()->create();
+
+        $response = $this->putJson("/api/times/{$time->id}", [
+            'nome' => 'Time Atualizado'
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'status' => 'success',
+                'data' => ['nome' => 'Time Atualizado']
+            ]);
+    }
+
+    public function test_deletar_time()
+    {
+        $time = Time::factory()->create();
+
+        $response = $this->deleteJson("/api/times/{$time->id}");
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'status' => 'success',
+                'message' => 'Time deletado com sucesso'
+            ]);
+    }
+
+    public function test_buscar_time_por_id()
+    {
+        $time = Time::factory()->create();
+
+        $response = $this->getJson("/api/times/{$time->id}");
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'status' => 'success',
+                'data' => ['nome' => $time->nome]
+            ]);
+    }
+
+    public function test_buscar_time_por_id_inexistente()
+    {
+        $response = $this->getJson('/api/times/1');
+
+        $response->assertStatus(404)
+            ->assertJson([
+                'status' => 'error',
+                'message' => 'Time não encontrado'
+            ]);
+    }
 }
